@@ -7,9 +7,11 @@ typedef struct stack {
 	int top;
 }STACK;
 
-void push()
+void push(STACK *s, int data)
 {
-	
+
+	s->arr[++s->top] = data;
+	printf("push : %d \n", data);
 }
 
 void pop()
@@ -20,10 +22,10 @@ void pop()
 int main(void)
 {
 	STACK s;
-
+	int data;
 	s.top = -1;
 
-	push();
-
+	push(&s, 10);
+	push(&s, 20);
 	return 0;
 }
