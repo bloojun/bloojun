@@ -1,0 +1,34 @@
+#include <stdio.h>
+
+void pyramid(int* h)
+{
+	int idx, blnk, sqr;
+	
+	for(idx = 1; idx <= *h; idx++)
+	{
+		for(blnk = 1; blnk <= (*h-idx); blnk++)
+			printf("  ");
+		for(sqr = 0; sqr < 2*idx-1; sqr++)
+			printf("■");
+		printf("\n");
+	}
+}
+	
+int main(void)
+{
+	int height;
+	
+	while(1){
+	printf("pyramid height (0 = exit) : ");
+	
+	scanf("%d", &height);
+	
+	if(height<1) 
+		return 0;
+	else if(height>=1)
+		printf("\n");
+		pyramid(&height);
+	printf("\n");
+	}
+	return 0;
+}
