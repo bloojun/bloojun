@@ -10,10 +10,9 @@ typedef struct stack {
 void push(STACK *s, int data)
 {
 	s->arr[++s->top] = data;
-	if (s->top > MAX - 1)
+	if (s->top > MAX - 1) // 왜 data값이 s->top으로 들어가는지 이해가안된다리
 	{
 		printf("no push \n");
-
 	}
 	else
 		printf("push : %d \n", data);
