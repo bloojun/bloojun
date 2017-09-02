@@ -14,7 +14,7 @@ void push(STACK *s, int data)
 	{
 		printf("no push \n");
 	}
-	else
+
 		printf("push : %d \n", data);
 }
 
@@ -36,9 +36,9 @@ int main(void)
 	int data;
 	s.top = -1;
 
-	//push(&s, 10);
-	//push(&s, 20);
-	//push(&s, 30);
+	push(&s, 10);
+	push(&s, 20);
+	push(&s, 30);
 	pop(&s);
 	pop(&s);
 	//push(&s, 10);
