@@ -92,7 +92,7 @@ int main(void)
 	//s.top = 0;
 	
 	char temp,buffer[20] = { 0, };
-	int size=20;
+	int size=0;
 	int count = 0;
 	
 	int i;
@@ -101,24 +101,17 @@ int main(void)
 	
 	fp = fopen("d:\\test\\test1.txt", "r");
 	
-	/*memset(&buffer, 0, sizeof(buffer));
-	//fread(buffer, sizeof(buffer), 1, fp);
+//	memset(&buffer, 0, sizeof(buffer));
 	while (!feof(fp))
 	{
-		fseek(fp, 0, SEEK_CUR);
-				
-		fread(buffer, 20, 1, fp);
-		printf("%s", buffer);
-		memset(buffer, 0, 20);
-		
+		fgets(buffer, sizeof(buffer), fp);
+		size = strlen(buffer);
+		if (check(buffer, size) == 1)
+		{
+			printf("matching ok \n");
+		}
+		else printf("no matching \n");
 	}
-		*/
-	
-	if(check(buffer,size)==1)
-	{
-		printf("matching ok \n");
-	}
-	else printf("no matching \n");
 	
 
 	fclose(fp);
