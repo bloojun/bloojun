@@ -101,10 +101,19 @@ int main(void)
 	
 	fp = fopen("d:\\test\\test1.txt", "r");
 	
-	memset(&buffer, 0, sizeof(buffer));
-	fread(buffer, sizeof(buffer), 1, fp);
+	/*memset(&buffer, 0, sizeof(buffer));
+	//fread(buffer, sizeof(buffer), 1, fp);
+	while (!feof(fp))
+	{
+		fseek(fp, 0, SEEK_CUR);
+				
+		fread(buffer, 20, 1, fp);
+		printf("%s", buffer);
+		memset(buffer, 0, 20);
+		
+	}
+		*/
 	
-	printf("%s\n", buffer);
 	if(check(buffer,size)==1)
 	{
 		printf("matching ok \n");
