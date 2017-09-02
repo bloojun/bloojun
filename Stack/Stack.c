@@ -9,36 +9,39 @@ typedef struct stack {
 
 void push(STACK *s, int data)
 {
-	s->arr[++s->top] = data;
-	if (s->top > MAX - 1) // 왜 data값이 s->top으로 들어가는지 이해가안된다리
+	
+	if (s->top >= MAX - 1)
 	{
 		printf("no push \n");
+		return;
 	}
-
-		printf("push : %d \n", data);
+	s->arr[++(s->top)] = data;
+	printf("push : %d \n", data);
 }
 
 void pop(STACK *s)
 {
-	s->arr[--s->top];
 	if (s->top < 0)
 	{
 		printf("no pop\n");
 		s->top = -1;
+		return;
 	}
-	else
-		printf("pop : %d \n", *(s->arr));
+	printf("pop : %d \n", (s->arr[s->top]));
+	s->arr[--(s->top)];
 }
 
 int main(void)
 {
 	STACK s;
-	int data;
+
 	s.top = -1;
 
 	push(&s, 10);
 	push(&s, 20);
 	push(&s, 30);
+	push(&s, 50);
+	pop(&s);
 	pop(&s);
 	pop(&s);
 	//push(&s, 10);
