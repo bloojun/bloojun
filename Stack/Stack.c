@@ -1,13 +1,17 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define MAX 50
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define MAX 2
-
+typedef enum { false, true } bool;
 typedef struct stack {
 	int arr[MAX];
 	int top;
 }STACK;
 
-void push(STACK *s, int data)
+void push(STACK *s, char data)
 {
 	if (s->top >= MAX )
 	{
@@ -18,12 +22,12 @@ void push(STACK *s, int data)
 	s->arr[s->top] = data;
 	(s->top)++;
 	
-	printf("push : %d \n", data);
+	//printf("push : %s \n", &data);
 }
 
 int pop(STACK *s)
 {
-	int val = 0;
+	char val = 0;
 
 	if (s->top <= 0)
 	{
@@ -34,27 +38,82 @@ int pop(STACK *s)
 		
 	(s->top)--;
 	val = s->arr[s->top];
-	printf("pop : %d \n", (s->arr[s->top]));
+	//printf("pop : %d \n", (s->arr[s->top]));
 	
 	s->arr[s->top] = 0;
 			
 	return val;
 }
 
+int check(char *buffer, int size)
+{
+	bool status = 0;
+	STACK s;
+	int i = 0;
+	char temp = 0;
+	
+	memset(&s.arr, 0, sizeof(s.arr));
+	s.top = 0;
+	
+	for (i = 0; i < size; i++)
+	{
+		switch (buffer[i])
+		{
+		case '(':
+		case '[':
+			if (temp == 0)
+			{
+				push(&s, buffer[i]);
+				temp = buffer[i];
+				break;
+			}
+			else return false;
+		case ')':
+		case ']':
+			if ((temp == '(' && buffer[i] == ')' ) || (temp == '[' && buffer[i] == ']'))
+			{
+				pop(&s);
+				temp = 0;
+				status = true;
+			}
+			else
+				return false;
+		}
+	}
+	if (temp != 0)
+		return false;
+	
+	return status;
+}
 int main(void)
 {
 	STACK s;
-	memset(&s.arr,0,sizeof(s.arr));
-	s.top = 0;
+	//memset(&s.arr,0,sizeof(s.arr));
+	//s.top = 0;
 	
-	push(&s, 10);
-	push(&s, 20);
-	push(&s, 30);
-	push(&s, 50);
+	char temp,buffer[20] = { 0, };
+	int size=20;
+	int count = 0;
 	
-	pop(&s);
-	pop(&s);
-	pop(&s);
+	int i;
+	
+	FILE *fp = NULL;
+	
+	fp = fopen("d:\\test\\test1.txt", "r");
+	
+	memset(&buffer, 0, sizeof(buffer));
+	fread(buffer, sizeof(buffer), 1, fp);
+	
+	printf("%s\n", buffer);
+	if(check(buffer,size)==1)
+	{
+		printf("matching ok \n");
+	}
+	else printf("no matching \n");
+	
+
+	fclose(fp);
+
 	
 	return 0;
 }
