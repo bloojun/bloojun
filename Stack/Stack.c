@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#define MAX 50
+#define MAX 3
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,22 +7,23 @@
 
 typedef enum { false, true } bool;
 typedef struct stack {
-	int arr[MAX];
+	char arr[MAX];
 	int top;
 }STACK;
 
+int cnt = 0;
+
 void push(STACK *s, char data)
 {
-	if (s->top >= MAX )
+	if (s->top >= MAX)
 	{
-		printf("no push \n");
+		//printf("no push \n");
 		return;
 	}
-	
+
 	s->arr[s->top] = data;
 	(s->top)++;
-	
-	//printf("push : %s \n", &data);
+
 }
 
 int pop(STACK *s)
@@ -31,91 +32,101 @@ int pop(STACK *s)
 
 	if (s->top <= 0)
 	{
-		printf("no pop\n");
+		//printf("no pop\n");
 		s->top = 0;
 		return;
 	}
-		
+
 	(s->top)--;
 	val = s->arr[s->top];
-	//printf("pop : %d \n", (s->arr[s->top]));
-	
 	s->arr[s->top] = 0;
-			
+
 	return val;
 }
 
-int check(char *buffer, int size)
+char check(char *buffer, int size, STACK *t)
 {
 	bool status = 0;
-	STACK s;
 	int i = 0;
-	char temp = 0;
-	
-	memset(&s.arr, 0, sizeof(s.arr));
-	s.top = 0;
-	
+	char buf;
+
 	for (i = 0; i < size; i++)
 	{
-		switch (buffer[i])
+		buf = buffer[i];
+		switch (buf)
 		{
 		case '(':
 		case '[':
-			if (temp == 0)
+		case '{':
+		{
+			if (t->arr[0] > 0)
 			{
-				push(&s, buffer[i]);
-				temp = buffer[i];
-				break;
-			}
-			else return false;
-		case ')':
-		case ']':
-			if ((temp == '(' && buffer[i] == ')' ) || (temp == '[' && buffer[i] == ']'))
-			{
-				pop(&s);
-				temp = 0;
-				status = true;
+				return 1;
 			}
 			else
-				return false;
+			{
+				push(t, buf);
+			}
+		}
+
+		case ')':
+		case ']':
+		case '}':
+		{
+			if (t->arr[0] == '(' && buf == ')' || t->arr[0] == '[' && buf == ']' || t->arr[0] == '{' && buf == '}')
+			{
+				pop(t);
+				cnt++;
+			}
+			else if (t->arr[0] == 0)
+			{
+				return 1;
+			}
+		}
 		}
 	}
-	if (temp != 0)
-		return false;
-	
-	return status;
+	return 0;
 }
 int main(void)
 {
 	STACK s;
-	//memset(&s.arr,0,sizeof(s.arr));
-	//s.top = 0;
-	
-	char temp,buffer[20] = { 0, };
-	int size=0;
+	memset(&s, 0, sizeof(s));
+	s.top = 0;
+
+	//char temp;
+	char buffer[3] = { 0, };
+	int size = 0;
 	int count = 0;
-	
-	int i;
-	
+
 	FILE *fp = NULL;
-	
+
 	fp = fopen("d:\\test\\test1.txt", "r");
-	
-//	memset(&buffer, 0, sizeof(buffer));
+	fseek(fp, 0, SEEK_SET);
 	while (!feof(fp))
 	{
-		fgets(buffer, sizeof(buffer), fp);
-		size = strlen(buffer);
-		if (check(buffer, size) == 1)
-		{
-			printf("matching ok \n");
-		}
-		else printf("no matching \n");
-	}
-	
+		count++;
 
+		fread(buffer, sizeof(buffer) - 1, 1, fp);
+
+		size = strlen(buffer);
+
+		if (check(buffer, size, &s) == 1)
+		{
+			printf("%d line fail \n", count);
+			fclose(fp);
+			return 0;
+		}
+		memset(&buffer, 0, sizeof(buffer));
+	}
+	/*if (s.top > 0)
+	{
+		printf("%d line fail \n", count);
+		fclose(fp);
+		return 0;
+	}*/
+	
+	printf("%d times correct matching \n", cnt);
 	fclose(fp);
 
-	
 	return 0;
 }
