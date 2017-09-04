@@ -1,17 +1,16 @@
 #define _CRT_SECURE_NO_WARNINGS
-#define MAX 3
+#define MAX 4096
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
-typedef enum { false, true } bool;
+
 typedef struct stack {
 	char arr[MAX];
 	int top;
 }STACK;
-
-int cnt = 0;
 
 void push(STACK *s, char data)
 {
@@ -44,9 +43,8 @@ int pop(STACK *s)
 	return val;
 }
 
-char check(char *buffer, int size, STACK *t)
+bool Check(char *buffer, int size, STACK *t, int *line_cnt)
 {
-	bool status = 0;
 	int i = 0;
 	char buf;
 
@@ -59,9 +57,9 @@ char check(char *buffer, int size, STACK *t)
 		case '[':
 		case '{':
 		{
-			if (t->arr[0] > 0)
+			if (t->arr[t->top - 1] == '(' || t->arr[t->top - 1] == '[' || t->arr[t->top - 1] == '{')
 			{
-				return 1;
+				return true;
 			}
 			else
 			{
@@ -73,19 +71,30 @@ char check(char *buffer, int size, STACK *t)
 		case ']':
 		case '}':
 		{
-			if (t->arr[0] == '(' && buf == ')' || t->arr[0] == '[' && buf == ']' || t->arr[0] == '{' && buf == '}')
+			if (t->arr[t->top - 1] == '(' && buf == ')' || t->arr[t->top - 1] == '[' && buf == ']' || t->arr[t->top - 1] == '{' && buf == '}')
 			{
 				pop(t);
-				cnt++;
+				*line_cnt = *line_cnt + 1;
 			}
 			else if (t->arr[0] == 0)
 			{
-				return 1;
+				return true;
 			}
 		}
 		}
 	}
-	return 0;
+	return false;
+}
+
+void LastCheck(STACK *a, int recive_count, int recive_line_cnt)
+{
+	if (a->arr[a->top - 1] == '(' || a->arr[a->top - 1] == '[' || a->arr[a->top - 1] == '{')
+	{
+		printf("%d line fail \n", recive_count);
+		printf("%d times correct matching \n", recive_line_cnt);
+	}
+	else
+		printf("%d times correct matching \n", recive_line_cnt);
 }
 int main(void)
 {
@@ -93,39 +102,32 @@ int main(void)
 	memset(&s, 0, sizeof(s));
 	s.top = 0;
 
-	//char temp;
-	char buffer[3] = { 0, };
+	char buffer[MAX] = { 0, };
 	int size = 0;
 	int count = 0;
+	int line_cnt = 0;
 
 	FILE *fp = NULL;
 
 	fp = fopen("d:\\test\\test1.txt", "r");
 	fseek(fp, 0, SEEK_SET);
-	while (!feof(fp))
+	do
 	{
 		count++;
-
+		memset(&buffer, 0, sizeof(buffer));
 		fread(buffer, sizeof(buffer) - 1, 1, fp);
 
 		size = strlen(buffer);
 
-		if (check(buffer, size, &s) == 1)
+		if (Check(buffer, size, &s, &line_cnt) == true)
 		{
 			printf("%d line fail \n", count);
-			fclose(fp);
-			return 0;
+			break;
 		}
-		memset(&buffer, 0, sizeof(buffer));
-	}
-	/*if (s.top > 0)
-	{
-		printf("%d line fail \n", count);
-		fclose(fp);
-		return 0;
-	}*/
-	
-	printf("%d times correct matching \n", cnt);
+	} while (!feof(fp));
+
+	LastCheck(&s, count, line_cnt);
+
 	fclose(fp);
 
 	return 0;
