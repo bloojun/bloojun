@@ -126,7 +126,6 @@ int main(void)
 		}	
 	} while (!feof(fp));
 	
-
 	LastCheck(&s, count, line_cnt);
 	
 	fclose(fp);
