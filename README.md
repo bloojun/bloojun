@@ -1,2 +1,0 @@
-# bloojun
-pro
