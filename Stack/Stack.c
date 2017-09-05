@@ -1,121 +1,127 @@
 #define _CRT_SECURE_NO_WARNINGS
-#define MAX 50
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-typedef enum { false, true } bool;
-typedef struct stack {
-	int arr[MAX];
-	int top;
-}STACK;
-
-void push(STACK *s, char data)
+typedef struct ArrayStack
 {
-	if (s->top >= MAX )
+	int Capacity;
+	int Top;
+	char *Data;
+	int *LineNum;
+}ArrayStack;
+
+//스택 생성
+void CreateStack(ArrayStack **Stack,int Capacity)
+{
+	(*Stack) = (ArrayStack*)malloc(sizeof(ArrayStack));
+	(*Stack)->Data = (char*)malloc(sizeof(char)*Capacity);
+	(*Stack)->LineNum = (int*)malloc(sizeof(int)*Capacity);
+	(*Stack)->Capacity = Capacity;
+	(*Stack)->Top = 0;
+}
+//데이터와 라인번호 Push
+int Push(ArrayStack *Stack,char Data, int Linecount)
+{
+	if (Stack->Capacity == Stack->Top)
 	{
-		printf("no push \n");
-		return;
+		printf("스택이 가득 찼습니다. \n");
+		return -1;
 	}
 	
-	s->arr[s->top] = data;
-	(s->top)++;
+	Stack->Data[Stack->Top] = Data;
+	Stack->LineNum[Stack->Top] = Linecount;
+	(Stack->Top)++;
 	
-	//printf("push : %s \n", &data);
+	//printf("Push: %c \n", Data);
+	return 0;
 }
 
-int pop(STACK *s)
+//POP
+int Pop(ArrayStack* Stack)
 {
-	char val = 0;
-
-	if (s->top <= 0)
+	if (Stack->Top == 0)
 	{
-		printf("no pop\n");
-		s->top = 0;
-		return;
+		printf("스택이 비었습니다. \n");
+		return -1;
 	}
-		
-	(s->top)--;
-	val = s->arr[s->top];
-	//printf("pop : %d \n", (s->arr[s->top]));
 	
-	s->arr[s->top] = 0;
-			
-	return val;
+		 --(Stack->Top);
+	
+	//printf("Pop: %c \n", Stack->Data);
+		 return 0;
 }
-
-int check(char *buffer, int size)
+//괄호 오류체크 함수
+int CheckBracket(ArrayStack *Stack, char * buf,int Linecount)
 {
-	bool status = 0;
-	STACK s;
-	int i = 0;
-	char temp = 0;
-	
-	memset(&s.arr, 0, sizeof(s.arr));
-	s.top = 0;
-	
-	for (i = 0; i < size; i++)
-	{
-		switch (buffer[i])
+	int idx;
+	for (idx = 0; idx < 100; idx++) {
+		switch (buf[idx])
 		{
-		case '(':
+		case '{':
 		case '[':
-			if (temp == 0)
-			{
-				push(&s, buffer[i]);
-				temp = buffer[i];
-				break;
-			}
-			else return false;
-		case ')':
+		case '(':
+			Push(Stack, buf[idx],Linecount);
+			break;
+		case ')':		
 		case ']':
-			if ((temp == '(' && buffer[i] == ')' ) || (temp == '[' && buffer[i] == ']'))
+		case '}':
+			if (Stack->Data[Stack->Top-1] == '(' && buf[idx] == ')' || Stack->Data[Stack->Top-1] == '[' && buf[idx] == ']' || Stack->Data[Stack->Top-1] == '{' && buf[idx] == '}')
 			{
-				pop(&s);
-				temp = 0;
-				status = true;
+				Pop(Stack);
 			}
 			else
-				return false;
+			{
+				printf("%d 라인에서 %c의 짝이 맞지 않습니다.\n", Stack->LineNum[Stack->Top-1], Stack->Data[Stack->Top-1]);
+				//getch(); 
+				return -1;
+			}
+			break;
+		default:
+			break;
 		}
 	}
-	if (temp != 0)
-		return false;
-	
-	return status;
+	return 0;
 }
-int main(void)
+
+int main()
 {
-	STACK s;
-	//memset(&s.arr,0,sizeof(s.arr));
-	//s.top = 0;
+	//줄의 번호 카운팅
+	int linecount = 0;
+
 	
-	char temp,buffer[20] = { 0, };
-	int size=0;
-	int count = 0;
+	ArrayStack* Stack = NULL;
+
+	CreateStack(&Stack, 100);
 	
-	int i;
-	
-	FILE *fp = NULL;
-	
-	fp = fopen("d:\\test\\test1.txt", "r");
-	
-//	memset(&buffer, 0, sizeof(buffer));
-	while (!feof(fp))
+	FILE* fp = fopen("data.txt", "rt");
+	if (fp == NULL)
 	{
-		fgets(buffer, sizeof(buffer), fp);
-		size = strlen(buffer);
-		if (check(buffer, size) == 1)
-		{
-			printf("matching ok \n");
-		}
-		else printf("no matching \n");
+		printf("파일 열기 실패");
+		return -1;
 	}
-	
+
+	//4KByte
+	char buf[4096] = { 0 };
+
+	do
+	{
+		memset(buf, 0, sizeof(buf));
+		if (fgets(buf, sizeof(buf), fp) == 0)
+			break;
+		linecount++;
+		printf("%d: %s", linecount, buf);
+		//괄호체크
+		if (CheckBracket(Stack, buf, linecount) != 0)
+		{
+			break;
+		}
+			
+	} while(!feof(fp));
 
 	fclose(fp);
-
-	
+	//메모리 해제
+	free(Stack->Data);
+	free(Stack->LineNum);
+	free(Stack);
 	return 0;
 }
