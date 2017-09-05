@@ -59,11 +59,12 @@ bool Check(char *buffer, int size, STACK *t, int *line_cnt)
 		{
 			if (t->arr[t->top - 1] == '(' || t->arr[t->top - 1] == '[' || t->arr[t->top - 1] == '{')
 			{
-				return true;
+				return false;
 			}
 			else
 			{
 				push(t, buf);
+				break;
 			}
 		}
 
@@ -75,33 +76,25 @@ bool Check(char *buffer, int size, STACK *t, int *line_cnt)
 			{
 				pop(t);
 				*line_cnt = *line_cnt + 1;
+				break;
 			}
-			else if (t->arr[0] == 0)
+			else if (t->arr[t->top - 1] != '(' && buf == ')' || t->arr[t->top - 1] != '[' && buf == ']' || t->arr[t->top - 1] != '{' && buf == '}')
 			{
-				return true;
+				return false;
 			}
 		}
 		}
 	}
-	return false;
+	return true;
 }
 
-void LastCheck(STACK *a, int recive_count, int recive_line_cnt)
-{
-	if (a->arr[a->top - 1] == '(' || a->arr[a->top - 1] == '[' || a->arr[a->top - 1] == '{')
-	{
-		printf("%d line fail \n", recive_count);
-		printf("%d times correct matching \n", recive_line_cnt);
-	}
-	else
-		printf("%d times correct matching \n", recive_line_cnt);
-}
 int main(void)
 {
 	STACK s;
-	memset(&s, 0, sizeof(s));
+	memset(&s.arr, 0, sizeof(s.arr));
 	s.top = 0;
 
+	bool isSuccess = false;
 	char buffer[MAX] = { 0, };
 	int size = 0;
 	int count = 0;
@@ -110,25 +103,31 @@ int main(void)
 	FILE *fp = NULL;
 
 	fp = fopen("d:\\test\\test1.txt", "r");
-	fseek(fp, 0, SEEK_SET);
-	do
+	if (fp != NULL)
 	{
-		count++;
-		memset(&buffer, 0, sizeof(buffer));
-		fread(buffer, sizeof(buffer) - 1, 1, fp);
+		do
+		{
+			memset(&buffer, 0, sizeof(buffer));
+			fread(buffer, sizeof(buffer) - 1, 1, fp);
 
-		size = strlen(buffer);
+			size = strlen(buffer);
+			if (size == 0) { break; }
+			count++;
+			isSuccess = Check(buffer, size, &s, &line_cnt);
 
-		if (Check(buffer, size, &s, &line_cnt) == true)
+		} while (!feof(fp));
+
+		if (isSuccess == false || s.arr[s.top - 1] == '(' || s.arr[s.top - 1] == '[' || s.arr[s.top - 1] == '{')
 		{
 			printf("%d line fail \n", count);
-			break;
+			printf("%d times correct matching \n", line_cnt);
 		}
-	} while (!feof(fp));
+		else
+			printf("%d times correct matching \n", line_cnt);
+		fclose(fp);
+	}
+	else printf("no file\n");
 
-	LastCheck(&s, count, line_cnt);
-
-	fclose(fp);
 
 	return 0;
 }
