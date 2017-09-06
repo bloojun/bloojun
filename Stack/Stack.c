@@ -4,7 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
+//#include <stdbool.h>
+
+_Bool false = 0;
+_Bool true = 1;
 
 
 typedef struct stack {
@@ -14,7 +17,7 @@ typedef struct stack {
 
 void push(STACK *s, char data)
 {
-	if (s->top >= MAX)
+	if (s == NULL || s->top >= MAX)
 	{
 		//printf("no push \n");
 		return;
@@ -22,17 +25,15 @@ void push(STACK *s, char data)
 
 	s->arr[s->top] = data;
 	(s->top)++;
-
 }
 
 int pop(STACK *s)
 {
 	char val = 0;
 
-	if (s->top <= 0)
+	if (s == NULL || s->top <= 0)
 	{
 		//printf("no pop\n");
-		s->top = 0;
 		return;
 	}
 
@@ -43,7 +44,7 @@ int pop(STACK *s)
 	return val;
 }
 
-bool Check(char *buffer, int size, STACK *t, int *line_cnt)
+_Bool Check(char *buffer, int size, STACK *t, int *line_cnt)
 {
 	int i = 0;
 	char buf;
@@ -57,78 +58,84 @@ bool Check(char *buffer, int size, STACK *t, int *line_cnt)
 		case '[':
 		case '{':
 		{
-			if (t->arr[t->top - 1] == '(' || t->arr[t->top - 1] == '[' || t->arr[t->top - 1] == '{')
+			if (t == NULL || t->arr[t->top - 1] == '(' || t->arr[t->top - 1] == '[' || t->arr[t->top - 1] == '{')
 			{
-				return true;
+				return false;
 			}
 			else
 			{
 				push(t, buf);
+				break;
 			}
 		}
-
 		case ')':
 		case ']':
 		case '}':
 		{
-			if (t->arr[t->top - 1] == '(' && buf == ')' || t->arr[t->top - 1] == '[' && buf == ']' || t->arr[t->top - 1] == '{' && buf == '}')
+			if (t == NULL || t->arr[t->top - 1] == '(' && buf == ')' || t->arr[t->top - 1] == '[' && buf == ']' || t->arr[t->top - 1] == '{' && buf == '}')
 			{
 				pop(t);
 				*line_cnt = *line_cnt + 1;
+				break;
 			}
-			else if (t->arr[0] == 0)
+			else
 			{
-				return true;
+				return false;
 			}
 		}
 		}
 	}
-	return false;
+	return true;
 }
 
-void LastCheck(STACK *a, int recive_count, int recive_line_cnt)
-{
-	if (a->arr[a->top - 1] == '(' || a->arr[a->top - 1] == '[' || a->arr[a->top - 1] == '{')
-	{
-		printf("%d line fail \n", recive_count);
-		printf("%d times correct matching \n", recive_line_cnt);
-	}
-	else
-		printf("%d times correct matching \n", recive_line_cnt);
-}
 int main(void)
 {
 	STACK s;
-	memset(&s, 0, sizeof(s));
+	memset(&s.arr, 0, sizeof(s.arr));
 	s.top = 0;
 
+	_Bool isSuccess = false;
 	char buffer[MAX] = { 0, };
 	int size = 0;
 	int count = 0;
-	int line_cnt = 0;
+	int successCnt = 0;
 
 	FILE *fp = NULL;
 
 	fp = fopen("d:\\test\\test1.txt", "r");
-	fseek(fp, 0, SEEK_SET);
-	do
+	if (fp != NULL)
 	{
-		count++;
-		memset(&buffer, 0, sizeof(buffer));
-		fread(buffer, sizeof(buffer) - 1, 1, fp);
+		do
+		{
+			memset(&buffer, 0, sizeof(buffer));
+			fread(buffer, sizeof(buffer) - 1, 1, fp);
 
-		size = strlen(buffer);
+			size = strlen(buffer);
+			if (size == 0) { break; }
+			count++;
+			isSuccess = Check(buffer, size, &s, &successCnt);
+			
+			if (isSuccess == false)
+			{
+				fseek(fp, 0, SEEK_END); 
+			}
+		} while (!feof(fp));
 
-		if (Check(buffer, size, &s, &line_cnt) == true)
+		if (isSuccess == false || s.top > 0)
 		{
 			printf("%d line fail \n", count);
-			break;
-		}	
-	} while (!feof(fp));
-	
-	LastCheck(&s, count, line_cnt);
-	
-	fclose(fp);
+			printf("%d times correct matching \n", successCnt);
+		}
+		else
+		{
+			printf("%d times correct matching \n", successCnt);
+		}
+		fclose(fp);
+	}
+	else
+	{
+		printf("no file\n");
+	}
 
 	return 0;
 }
