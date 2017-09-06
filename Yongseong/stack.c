@@ -1,6 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#define Bufsize 4096
+
+#define TRUE 0;
+#define FALSE -1;
 
 typedef struct ArrayStack
 {
@@ -22,10 +26,10 @@ void CreateStack(ArrayStack **Stack,int Capacity)
 //데이터와 라인번호 Push
 int Push(ArrayStack *Stack,char Data, int Linecount)
 {
-	if (Stack->Capacity == Stack->Top)
+	if (!Stack || Stack->Capacity == Stack->Top)
 	{
-		printf("스택이 가득 찼습니다. \n");
-		return -1;
+		printf("Stack is full. \n");
+		return FALSE;
 	}
 	
 	Stack->Data[Stack->Top] = Data;
@@ -33,28 +37,28 @@ int Push(ArrayStack *Stack,char Data, int Linecount)
 	(Stack->Top)++;
 	
 	//printf("Push: %c \n", Data);
-	return 0;
+	return TRUE;
 }
 
 //POP
 int Pop(ArrayStack* Stack)
 {
-	if (Stack->Top == 0)
+	if (!Stack || Stack->Top == 0)
 	{
-		printf("스택이 비었습니다. \n");
-		return -1;
+		printf("Stack is empty. \n");
+		return FALSE;
 	}
 	
 		 --(Stack->Top);
 	
 	//printf("Pop: %c \n", Stack->Data);
-		 return 0;
+		 return TRUE;
 }
 //괄호 오류체크 함수
 int CheckBracket(ArrayStack *Stack, char * buf,int Linecount)
 {
 	int idx;
-	for (idx = 0; idx < 100; idx++) {
+	for (idx = 0; idx < Bufsize; idx++) {
 		switch (buf[idx])
 		{
 		case '{':
@@ -73,21 +77,20 @@ int CheckBracket(ArrayStack *Stack, char * buf,int Linecount)
 			{
 				printf("%d 라인에서 %c의 짝이 맞지 않습니다.\n", Stack->LineNum[Stack->Top-1], Stack->Data[Stack->Top-1]);
 				//getch(); 
-				return -1;
+				return FALSE;
 			}
 			break;
 		default:
 			break;
 		}
 	}
-	return 0;
+	return TRUE;
 }
 
 int main()
 {
 	//줄의 번호 카운팅
 	int linecount = 0;
-
 	
 	ArrayStack* Stack = NULL;
 
@@ -97,17 +100,20 @@ int main()
 	if (fp == NULL)
 	{
 		printf("파일 열기 실패");
-		return -1;
+		return FALSE;
 	}
 
 	//4KByte
-	char buf[4096] = { 0 };
+	char buf[Bufsize] = { 0 };
 
 	do
 	{
 		memset(buf, 0, sizeof(buf));
-		if (fgets(buf, sizeof(buf), fp) == 0)
+		if (fgets(buf, sizeof(buf), fp)==0)
+		{
 			break;
+		}
+		
 		linecount++;
 		printf("%d: %s", linecount, buf);
 		//괄호체크
@@ -120,8 +126,11 @@ int main()
 
 	fclose(fp);
 	//메모리 해제
-	free(Stack->Data);
-	free(Stack->LineNum);
-	free(Stack);
-	return 0;
+	if (Stack != 0) 
+	{
+		free(Stack->Data);
+		free(Stack->LineNum);
+		free(Stack);
+	}
+	return TRUE;
 }
