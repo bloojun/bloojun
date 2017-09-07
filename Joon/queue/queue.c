@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX 2
+#define MAX 3
 
 typedef struct queue {
 	int rear;
@@ -13,28 +13,41 @@ typedef struct queue {
 
 void EnQueue(Queue *q, int data)
 {
-	if (q != NULL &&  q->rear != MAX)
+	
+	if (q && q->front == q->rear)
 	{
 		q->arr[q->rear] = data;
-		(q->rear)++;
+		q->rear = q->rear + 1 % MAX;
+	}
+	else if (q && q->front != q->rear && q->rear<MAX)
+	{
+		q->arr[q->rear] = data;
+		q->rear = q->rear + 1 % MAX;
+		
 	}
 	else
-		return;
+	{
+		printf("Full Array\n");
+		return 0;
+	}
 }
 
 int DeQueue(Queue *d)
 {
 	int data = 0;
 
-	if (d != NULL && d->front != d->rear)
+	if (d && d->front != d->rear)
 	{
 		data = d->arr[d->front];
 		d->arr[d->front] = 0;
-		(d->front)++;
+		d->front = d->front + 1 % MAX;
 		return data;
 	}
 	else
-		return;
+	{
+		printf("No Data\n");
+		return 0;
+	}
 }
 
 int main(void)
@@ -46,11 +59,14 @@ int main(void)
 	q.rear = 0;
 	q.front = 0;
 
-	//EnQueue(&q, 1);
-
-	DeQueue(&q);
-
-	printf("%d\n", q.arr[q.front - 1]);
+	EnQueue(&q, 2);
+	EnQueue(&q, 5);
+	EnQueue(&q, 8);
+	EnQueue(&q, 11);
+	printf("%d\n", DeQueue(&q));
+	printf("%d\n", DeQueue(&q));
+	printf("%d\n", DeQueue(&q));
+	printf("%d\n", DeQueue(&q));
 
 	return 0;
 }
