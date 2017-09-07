@@ -46,9 +46,7 @@ int main(void)
 	q.rear = 0;
 	q.front = 0;
 
-	EnQueue(&q, 1);
-
-	printf("%d\n", q.arr[q.rear-1]);
+	//EnQueue(&q, 1);
 
 	DeQueue(&q);
 
