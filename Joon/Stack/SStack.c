@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <stdbool.h>
 
 _Bool false = 0;
 _Bool true = 1;
@@ -17,7 +16,7 @@ typedef struct stack {
 
 void push(STACK *s, char data)
 {
-	if (s == NULL || s->top >= MAX)
+	if (!s || s->top >= MAX)
 	{
 		//printf("no push \n");
 		return;
@@ -31,7 +30,7 @@ int pop(STACK *s)
 {
 	char val = 0;
 
-	if (s == NULL || s->top <= 0)
+	if (!s || s->top <= 0)
 	{
 		//printf("no pop\n");
 		return;
@@ -58,7 +57,7 @@ _Bool Check(char *buffer, int size, STACK *t, int *line_cnt)
 		case '[':
 		case '{':
 		{
-			if (t == NULL || t->arr[t->top - 1] == '(' || t->arr[t->top - 1] == '[' || t->arr[t->top - 1] == '{')
+			if (!t)
 			{
 				return false;
 			}
@@ -72,7 +71,7 @@ _Bool Check(char *buffer, int size, STACK *t, int *line_cnt)
 		case ']':
 		case '}':
 		{
-			if (t == NULL || t->arr[t->top - 1] == '(' && buf == ')' || t->arr[t->top - 1] == '[' && buf == ']' || t->arr[t->top - 1] == '{' && buf == '}')
+			if (!t || t->arr[t->top - 1] == '(' && buf == ')' || t->arr[t->top - 1] == '[' && buf == ']' || t->arr[t->top - 1] == '{' && buf == '}')
 			{
 				pop(t);
 				*line_cnt = *line_cnt + 1;
