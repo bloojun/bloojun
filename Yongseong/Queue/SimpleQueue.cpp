@@ -57,7 +57,7 @@ int dequeue(Queue *Q)
 	if (!Q || is_empty(Q))
 	{
 		printf("Queue is empty or Queue err.\n");
-		return false;
+		return -1;
 	}
 	(Q->front)++;
 	return Q->Queue_array[Q->front];
